@@ -25,7 +25,7 @@ type Route struct {
 	Name      string   		`yaml:"name"`
 	Path      string   		`yaml:"path"`
 	Timeout   time.Duration `yaml:"timeout"`
-	Upstreams []Upstream 	`yaml:"upstreams"`
+	Upstreams []string 	`yaml:"upstreams"`
 }
 
 type Config struct {
@@ -37,17 +37,18 @@ type Config struct {
 
 
 // loads without validation
-func (c *Config) Load(path string) error {
+func Load(path string) (*Config, error) {
 	file, err := os.Open(path)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer file.Close()
 
+	var c Config
 	decoder := yaml.NewDecoder(file)
 	if err := decoder.Decode(&c); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return &c, nil
 }

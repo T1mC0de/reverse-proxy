@@ -10,29 +10,21 @@ import (
 )
 
 type Runtime struct {
-	proxy *proxy.Proxy
+	Proxy *proxy.Proxy
 }
 
-func NewRuntime(proxy *proxy.Proxy) *Runtime {
-	return &Runtime{
-		proxy: proxy,
-	}
-}
-
-func (r *Runtime) Build(cfg *config.Config, logger *slog.Logger) (*Runtime, error) {
+func Build(cfg *config.Config, logger *slog.Logger) (*Runtime, error) {
 	router := router.NewRouter(cfg.Routes)
 	forwarder := forwarder.NewForwarder(&http.Transport{
 		MaxIdleConns:        cfg.Transport.MaxIdleConns,
 		IdleConnTimeout:     cfg.Transport.IdleConnTimeout,
 		TLSHandshakeTimeout: cfg.Transport.TLSHandshakeTimeout,
-	})
+	}, logger)
 
 	proxy := proxy.NewProxy(router, forwarder, logger)
 
-	
-
 	return &Runtime{
-		proxy: proxy,
+		Proxy: proxy,
 	}, nil
 }
 
