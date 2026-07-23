@@ -8,7 +8,7 @@ transport:
 
 upstreams:
   - name: backend
-    url: "http://localhost:9002"
+    url: "https://jsonplaceholder.typicode.com/users"
   - name: frontend
     url: "http://localhost:9003"
 
