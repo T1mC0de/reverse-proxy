@@ -8,13 +8,13 @@ transport:
 
 upstreams:
   - name: backend
-    url: "https://jsonplaceholder.typicode.com/users"
+    url: "https://jsonplaceholder.typicode.com"
   - name: frontend
     url: "http://localhost:9003"
 
 routes:
   - name: api
-    path: "/api"
+    path: "/users"
     timeout: 3s
     upstreams:
       - "backend"
