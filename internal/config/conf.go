@@ -25,7 +25,7 @@ type Route struct {
 	Name      string   		`yaml:"name"`
 	Path      string   		`yaml:"path"`
 	Timeout   time.Duration `yaml:"timeout"`
-	Upstreams []string 	`yaml:"upstreams"`
+	Upstreams []string 		`yaml:"upstreams"`
 }
 
 type Config struct {
@@ -48,6 +48,17 @@ func Load(path string) (*Config, error) {
 	decoder := yaml.NewDecoder(file)
 	if err := decoder.Decode(&c); err != nil {
 		return nil, err
+	}
+
+	upstreamMap := make(map[string]string)
+	for i := range c.Upstreams {
+		upstreamMap[c.Upstreams[i].Name] = c.Upstreams[i].URL
+	}
+
+	for i := range c.Routes {
+		for j := range c.Routes[i].Upstreams {
+			c.Routes[i].Upstreams[j] = upstreamMap[c.Routes[i].Upstreams[j]]
+		}
 	}
 
 	return &c, nil

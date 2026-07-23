@@ -34,10 +34,10 @@ func (f *Forwarder) Forward(ctx context.Context, w http.ResponseWriter, r *http.
 	req.Header.Set("X-Forwarded-For", r.RemoteAddr)
 	req.Header.Set("X-Forwarded-Host", r.Host)
 
-	f.logger.Debug("Forwarding request", "headers", req.Header, "body", requestBody)
 	resp, err := f.transport.RoundTrip(req)
 	if err != nil {
 		f.logger.Error("Failed to forward request", "error", err)
+		f.logger.Debug("Forwarding request", "headers", req.Header, "URL", req.URL.String())
 		return err
 	}
 	defer resp.Body.Close()

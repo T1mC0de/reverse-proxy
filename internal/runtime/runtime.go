@@ -11,6 +11,7 @@ import (
 
 type Runtime struct {
 	Proxy *proxy.Proxy
+	logger *slog.Logger
 }
 
 func Build(cfg *config.Config, logger *slog.Logger) (*Runtime, error) {
@@ -25,6 +26,7 @@ func Build(cfg *config.Config, logger *slog.Logger) (*Runtime, error) {
 
 	return &Runtime{
 		Proxy: proxy,
+		logger: logger,
 	}, nil
 }
 

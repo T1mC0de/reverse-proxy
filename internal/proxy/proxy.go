@@ -30,12 +30,13 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	p.logger.Debug("Route detected", "route_path", route.Path, "upstream", route.Upstreams[0], "request_path", r.URL.Path)
+
 	ctx, cancel := context.WithTimeout(r.Context(), route.Timeout)
 	defer cancel()
 
 	err := p.forwarder.Forward(ctx, w, r, route.Upstreams[0])
 	if err != nil {
-		p.logger.Error("Failed to forward request", "error", err)
 		http.Error(w, "Failed to forward request", http.StatusBadGateway)
 		return
 	}
