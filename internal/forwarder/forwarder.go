@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"log/slog"
+	"net/url"
 )
 
 type Forwarder struct {
@@ -19,15 +20,20 @@ func NewForwarder(transport *http.Transport, logger *slog.Logger) *Forwarder {
 	}
 }
 
-func (f *Forwarder) Forward(ctx context.Context, w http.ResponseWriter, r *http.Request, upstreamURL string) error {
-	targetPath := upstreamURL + r.URL.Path
+func (f *Forwarder) Forward(ctx context.Context, w http.ResponseWriter, r *http.Request, upstreamURL string) {
+	targetPath, err := url.JoinPath(upstreamURL, r.URL.Path)
+	if err != nil {
+		f.logger.Error("Failed to join URL path", "error", err)
+		http.Error(w, "Failed to join URL path", http.StatusInternalServerError)
+		return
+	}
 	requestBody := r.Body
 
 	req, err := http.NewRequestWithContext(ctx, r.Method, targetPath, requestBody)
 	if err != nil {
 		f.logger.Error("Failed to create request", "error", err)
 		http.Error(w, "Failed to create request", http.StatusInternalServerError)
-		return err
+		return
 	}
 	
 	req.Header = r.Header.Clone()
@@ -38,9 +44,12 @@ func (f *Forwarder) Forward(ctx context.Context, w http.ResponseWriter, r *http.
 	if err != nil {
 		f.logger.Error("Failed to forward request", "error", err)
 		f.logger.Debug("Forwarding request", "headers", req.Header, "URL", req.URL.String())
-		return err
+		http.Error(w, "Failed to forward request", http.StatusBadGateway)
+		return
 	}
 	defer resp.Body.Close()
+
+	f.logger.Debug("Received response", "status", resp.StatusCode, "headers", resp.Header, "URL", req.URL.String())
 
 	for key, values := range resp.Header {
 		for _, value := range values {
@@ -51,8 +60,7 @@ func (f *Forwarder) Forward(ctx context.Context, w http.ResponseWriter, r *http.
 	w.WriteHeader(resp.StatusCode)
 	_, err = io.Copy(w, resp.Body)
 	if err != nil {
-		return err
+		http.Error(w, "Failed to copy response body", http.StatusBadGateway)
+		return
 	}
-
-	return nil
 }

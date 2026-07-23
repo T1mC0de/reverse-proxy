@@ -35,11 +35,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), route.Timeout)
 	defer cancel()
 
-	err := p.forwarder.Forward(ctx, w, r, route.Upstreams[0])
-	if err != nil {
-		http.Error(w, "Failed to forward request", http.StatusBadGateway)
-		return
-	}
+	p.forwarder.Forward(ctx, w, r, route.Upstreams[0])
 }
 
 
