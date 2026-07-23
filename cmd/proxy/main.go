@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	logger := slog.New(tint.NewTextHandler(os.Stdout, &tint.Options{Level: slog.LevelInfo, TimeFormat: time.Kitchen}))
+	logger := slog.New(tint.NewTextHandler(os.Stdout, &tint.Options{Level: slog.LevelDebug, TimeFormat: time.Kitchen}))
 	slog.SetDefault(logger)
 
 	cfg, err := config.Load("configs/config.yaml")
