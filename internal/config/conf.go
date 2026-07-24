@@ -4,6 +4,7 @@ import (
 	"os"
 	"time"
 	"gopkg.in/yaml.v3"
+	"fmt"
 )
 
 type Server struct {
@@ -35,8 +36,6 @@ type Config struct {
 	Routes     []Route     `yaml:"routes"`
 }
 
-
-// loads without validation
 func Load(path string) (*Config, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -57,7 +56,11 @@ func Load(path string) (*Config, error) {
 
 	for i := range c.Routes {
 		for j := range c.Routes[i].Upstreams {
-			c.Routes[i].Upstreams[j] = upstreamMap[c.Routes[i].Upstreams[j]]
+			var exists bool
+			c.Routes[i].Upstreams[j], exists = upstreamMap[c.Routes[i].Upstreams[j]]
+			if !exists {
+				return nil, fmt.Errorf("upstream '%s' referenced in route '%s' not found", c.Routes[i].Upstreams[j], c.Routes[i].Name)
+			}
 		}
 	}
 
