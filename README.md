@@ -13,7 +13,7 @@ A reverse proxy I built to understand how things like Nginx work under the hood.
 
 ## How it's organized
 
-```
+```plaintext
 cmd/
   proxy/      - starts the proxy
   servers/    - a dummy backend for testing (returns "Hello /path")
