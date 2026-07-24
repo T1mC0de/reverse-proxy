@@ -1,6 +1,7 @@
 package runtime
 
 import (
+	"build-your-own-reverse-proxy/internal/balancer"
 	"build-your-own-reverse-proxy/internal/config"
 	"build-your-own-reverse-proxy/internal/forwarder"
 	"build-your-own-reverse-proxy/internal/proxy"
@@ -22,7 +23,9 @@ func Build(cfg *config.Config, logger *slog.Logger) (*Runtime, error) {
 		TLSHandshakeTimeout: cfg.Transport.TLSHandshakeTimeout,
 	}, logger)
 
-	proxy := proxy.NewProxy(router, forwarder, logger)
+	balancer := balancer.NewRoundRobinBalancer()
+
+	proxy := proxy.NewProxy(router, forwarder, balancer, logger)
 
 	return &Runtime{
 		Proxy: proxy,

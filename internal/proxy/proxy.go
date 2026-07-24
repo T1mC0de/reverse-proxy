@@ -3,21 +3,25 @@ package proxy
 import (
 	"build-your-own-reverse-proxy/internal/router"
 	"build-your-own-reverse-proxy/internal/forwarder"
+	"build-your-own-reverse-proxy/internal/balancer"
 	"log/slog"
 	"net/http"
 	"context"
+
 )
 
 type Proxy struct {
 	router    *router.Router
 	forwarder *forwarder.Forwarder
+	balancer  balancer.Balancer
 	logger    *slog.Logger
 }
 
-func NewProxy(router *router.Router, forwarder *forwarder.Forwarder, logger *slog.Logger) *Proxy {
+func NewProxy(router *router.Router, forwarder *forwarder.Forwarder, balancer balancer.Balancer, logger *slog.Logger) *Proxy {
 	return &Proxy{
 		router:    router,
 		forwarder: forwarder,
+		balancer:  balancer,
 		logger:    logger,
 	}
 }
@@ -30,12 +34,16 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	p.logger.Debug("Route detected", "route_path", route.Path, "upstream", route.Upstreams[0], "request_path", r.URL.Path)
+	p.logger.Debug("Route detected", "route_path", route.Path, "request_path", r.URL.Path)
+
+	upstream := p.balancer.Pick(route.Upstreams)
+
+	p.logger.Debug("Upstream selected", "upstream", upstream)
 
 	ctx, cancel := context.WithTimeout(r.Context(), route.Timeout)
 	defer cancel()
 
-	p.forwarder.Forward(ctx, w, r, route.Upstreams[0])
+	p.forwarder.Forward(ctx, w, r, *upstream)
 }
 
 
