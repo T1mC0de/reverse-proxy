@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"os"
 	"time"
+	"os/signal"
+	"context"
 )
 
 func main() {
@@ -32,6 +34,22 @@ func main() {
 	logger.Info("Runtime built successfully")
 
 	srv := server.NewServer(cfg, rt.Proxy)
+
+	go func() {
+		sigChan := make(chan os.Signal, 1)
+		signal.Notify(sigChan, os.Interrupt)
+		<- sigChan
+
+		logger.Info("Shutdown signal received")
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		if err := srv.StopServer(ctx); err != nil {
+			logger.Error("Failed to stop server", "error", err)
+		} else {
+			logger.Info("Server stopped gracefully")
+		}
+	}()
 
 	logger.Info("Server starting")
 	if err := srv.StartServer(); err != nil && err != http.ErrServerClosed {
