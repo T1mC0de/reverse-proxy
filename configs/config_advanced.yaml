@@ -8,15 +8,15 @@ transport:
 
 upstreams:
   - name: backend1
-    url: "http://localhost:9001"
+    url: "https://dummyjson.com"
   - name: backend2
-    url: "http://localhost:9002"
+    url: "https://jsonplaceholder.typicode.com"
   - name: frontend
     url: "http://localhost:9003"
 
 routes:
   - name: api
-    path: "/api"
+    path: "/posts"
     timeout: 3s
     upstreams:
       - "backend1"

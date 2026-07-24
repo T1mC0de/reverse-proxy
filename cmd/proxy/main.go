@@ -17,7 +17,7 @@ func main() {
 	logger := slog.New(tint.NewTextHandler(os.Stdout, &tint.Options{Level: slog.LevelDebug, TimeFormat: time.Kitchen}))
 	slog.SetDefault(logger)
 
-	cfg, err := config.Load("configs/config.yaml")
+	cfg, err := config.Load("configs/config_advanced.yaml")
 	if err != nil {
 		logger.Error("Failed to load config", "error", err)
 		os.Exit(1)
