@@ -1,0 +1,29 @@
+server:
+  port: ":8080"
+
+transport:
+  max_idle_conns: 100
+  idle_conn_timeout: 90s
+  tls_handshake_timeout: 10s
+
+upstreams:
+  - name: backend1
+    url: "https://dummyjson.com"
+  - name: backend2
+    url: "https://jsonplaceholder.typicode.com"
+  - name: frontend
+    url: "http://localhost:9003"
+
+routes:
+  - name: api
+    path: "/posts"
+    timeout: 3s
+    upstreams:
+      - "backend1"
+      - "backend2"
+
+  - name: frontend
+    path: "/"
+    timeout: 3s
+    upstreams:
+      - "frontend"
