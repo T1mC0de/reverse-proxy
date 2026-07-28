@@ -1,0 +1,16 @@
+site_name: Build Your Own Reverse Proxy
+site_description: A from-scratch guide to building a production-grade reverse proxy in Go, with load balancing and health checks.
+site_author: T1mC0de
+repo_url: https://github.com/T1mC0de/reverse-proxy
+repo_name: T1mC0de/reverse-proxy
+edit_uri: edit/main/docs/
+
+theme: 
+  name: windmill
+
+plugins:
+  - search
+
+nav:
+  - Home: index.md
+  - "What is a reverse proxy?": "01-what-is-a-reverse-proxy.md"
