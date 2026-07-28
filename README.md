@@ -86,14 +86,6 @@ curl http://localhost:8080/users
 curl http://localhost:8080/
 ```
 
-## Things I'd like to add
-
-The project works, but there's a bunch of stuff I want to improve:
-
-- **Health checks for upstreams** — right now the balancer has no idea if a backend is down. Adding health checks and a circuit breaker would make it actually production-ready.
-- **Hot config reload** — having to restart the proxy every time you change a route is annoying. Should be able to watch the config file and reload gracefully.
-- **Tests** — I know, I know. The interfaces are designed to be mockable, I just need to actually write the tests.
-
 ## Why I built this
 
 I've used Nginx without really understanding what happens inside. Building one from scratch — even a simple one — teaches you a lot about HTTP, connection pooling, and why reverse proxies are configured the way they are.
