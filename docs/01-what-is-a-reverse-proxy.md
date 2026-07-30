@@ -30,3 +30,5 @@ Let's list some of the reasons why you would want to use a reverse proxy:
 - **Hiding internal services** - backends are never exposed directly; only the proxy is public, and internal addresses/ports are known only to it. (Makes system architecture more flexible, and also improves security.)
 - **Load balancing** — if a service is replicated across several instances, the proxy spreads traffic across them.
 - **Rate limiting, auth, caching** — cross-cutting concerns that are easier to solve once, at the proxy, than to duplicate in every backend.
+
+Also, you probably have seen some examples of reverse proxies in the wild. For example, Nginx and Traefik are popular reverse proxies that are used in many production environments. They provide a lot of features out of the box, such as load balancing, caching, and SSL termination. Therefore, if you have experience with these tools, you may already be familiar with more purposes of reverse proxies.
