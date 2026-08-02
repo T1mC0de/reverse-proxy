@@ -68,39 +68,39 @@ We will define a structures that matches the structures of the configuration fil
 package config
 
 import (
-	"os"
-	"time"
-	"gopkg.in/yaml.v3"
-	"fmt"
+ "os"
+ "time"
+ "gopkg.in/yaml.v3"
+ "fmt"
 )
 
 type Server struct {
-	Port string `yaml:"port"`
+ Port string `yaml:"port"`
 }
 
 type Transport struct {
-	MaxIdleConns        int    		  `yaml:"max_idle_conns"`
-	IdleConnTimeout     time.Duration `yaml:"idle_conn_timeout"`
-	TLSHandshakeTimeout time.Duration `yaml:"tls_handshake_timeout"`
+ MaxIdleConns        int        `yaml:"max_idle_conns"`
+ IdleConnTimeout     time.Duration `yaml:"idle_conn_timeout"`
+ TLSHandshakeTimeout time.Duration `yaml:"tls_handshake_timeout"`
 }
 
 type Upstream struct {
-	Name string `yaml:"name"`
-	URL  string `yaml:"url"`
+ Name string `yaml:"name"`
+ URL  string `yaml:"url"`
 }
 
 type Route struct {
-	Name      string   		`yaml:"name"`
-	Path      string   		`yaml:"path"`
-	Timeout   time.Duration `yaml:"timeout"`
-	Upstreams []string 		`yaml:"upstreams"`
+ Name      string     `yaml:"name"`
+ Path      string     `yaml:"path"`
+ Timeout   time.Duration `yaml:"timeout"`
+ Upstreams []string   `yaml:"upstreams"`
 }
 
 type Config struct {
-	Server     Server      `yaml:"server"`
-	Transport  Transport   `yaml:"transport"`
-	Upstreams  []Upstream  `yaml:"upstreams"`
-	Routes     []Route     `yaml:"routes"`
+ Server     Server      `yaml:"server"`
+ Transport  Transport   `yaml:"transport"`
+ Upstreams  []Upstream  `yaml:"upstreams"`
+ Routes     []Route     `yaml:"routes"`
 }
 ```
 
@@ -109,40 +109,35 @@ Here is my implementation of the `Load` function that does just that:
 
 ```go
 func Load(path string) (*Config, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
+ file, err := os.Open(path)
+ if err != nil {
+  return nil, err
+ }
+ defer file.Close()
 
-	var c Config
-	decoder := yaml.NewDecoder(file)
-	if err := decoder.Decode(&c); err != nil {
-		return nil, err
-	}
+ var c Config
+ decoder := yaml.NewDecoder(file)
+ if err := decoder.Decode(&c); err != nil {
+  return nil, err
+ }
 
-	upstreamMap := make(map[string]string)
-	for i := range c.Upstreams {
-		upstreamMap[c.Upstreams[i].Name] = c.Upstreams[i].URL
-	}
+ upstreamMap := make(map[string]string)
+ for i := range c.Upstreams {
+  upstreamMap[c.Upstreams[i].Name] = c.Upstreams[i].URL
+ }
 
-	for i := range c.Routes {
-		for j := range c.Routes[i].Upstreams {
-			var exists bool
-			c.Routes[i].Upstreams[j], exists = upstreamMap[c.Routes[i].Upstreams[j]]
-			if !exists {
-				return nil, fmt.Errorf("upstream '%s' referenced in route '%s' not found", c.Routes[i].Upstreams[j], c.Routes[i].Name)
-			}
-		}
-	}
+ for i := range c.Routes {
+  for j := range c.Routes[i].Upstreams {
+   var exists bool
+   c.Routes[i].Upstreams[j], exists = upstreamMap[c.Routes[i].Upstreams[j]]
+   if !exists {
+        return nil, fmt.Errorf("upstream '%s' referenced in route '%s' not found", c.Routes[i].Upstreams[j], c.Routes[i].Name)
+   }
+  }
+ }
 
-	return &c, nil
+ return &c, nil
 }
 ```
 
 Notice, in the function I also used map to store URLs of upstreams in `Routes`, so that we can easily replace the names of upstreams in `Routes` with their corresponding URLs. This way, when we handle a request, we can easily forward it to the correct upstream server.
-
-
-
-
-
